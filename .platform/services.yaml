@@ -1,0 +1,3 @@
+db:
+  type: mongodb-enterprise:5.0
+  disk: 512
