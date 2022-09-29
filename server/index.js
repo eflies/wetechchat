@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import authRoutes from "./routes/auth.js";
 import httpMod from "http";
 import cors from "cors";
 import { Server } from "socket.io";
@@ -13,12 +14,11 @@ import { config } from "platformsh-config";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import * as bcrypt from "bcrypt"
-import { initDB } from "./init.js"
 
 dotenv.config();
 const pshConfig = config();
 
-const { PORT = 4000 } = process.env;
+const { PORT = 4000, MONGO_URL } = process.env;
 const app = express();
 
 const http = httpMod.createServer(app);
@@ -40,7 +40,24 @@ app.use(bodyParser.json());
 app.options("*", cors(options));
 app.use(express.json());
 
-const db = initDB(pshConfig)
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+app.use("/api/auth", authRoutes);
+
+const MONGO_URI =
+    MONGO_URL ?? pshConfig.formattedCredentials("database", "mongodb");
+mongoose
+    .connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log("DB Connetion Successfull");
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 
 const io = new Server(http, {
   cors: {
@@ -77,59 +94,46 @@ io.on("connection", (socket) => {
 });
 
 app.post("/saveMessage", async (req, res) => {
-  if (db) {
-    await db.collections.savedmessages.findOneAndUpdate(
-        {
-          saver: req.body.saver,
-        },
-        {
-          $push: {
-            messages: {
-              text: req.body.text,
-              messageAuthor: req.body.messageAuthor,
-            },
+  await db.collections.savedmessages.findOneAndUpdate(
+      {
+        saver: req.body.saver,
+      },
+      {
+        $push: {
+          messages: {
+            text: req.body.text,
+            messageAuthor: req.body.messageAuthor,
           },
         },
-        { upsert: true }
-    );
-  }
-
+      },
+      { upsert: true }
+  );
   res.send("success");
 });
-
 app.post("/register", async (req, res) => {
   console.log({ req });
   let payload = req.body
   payload.password = await bcrypt.hash(payload.password, 10)
 
-  if (db) {
-    const newUser = new User(payload);
-    newUser.save((err) => {
-      console.log({ err });
-      if (err) {
-        res.send("error");
-        return;
-      } else {
-        res.send("success");
-      }
-    });
-  } else {
-    res.send("success");
-  }
+  const newUser = new User(payload);
+  newUser.save((err) => {
+    console.log({ err });
+    if (err) {
+      res.send("error");
+      return;
+    } else {
+      res.send("success");
+    }
+  });
 });
 
 app.post("/login", async (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.send("Fill in all imputs");
   }
-
-  let user
-  if (db) {
-    user = await db.collections.users.findOne({
-      username: req.body.username,
-    });
-  }
-
+  const user = await db.collections.users.findOne({
+    username: req.body.username,
+  });
   if (!user) {
     return res.send("User doesn't exist");
   }
@@ -145,13 +149,12 @@ app.get("/savedMessages/:username", async (req, res) => {
     saver: req.params.username,
   });
   const msgAuthors = (savedMessages?.messages || []).map(
-    (savedMsg) => savedMsg.messageAuthor
+      (savedMsg) => savedMsg.messageAuthor
   );
   const authorsData = await User.find({ username: msgAuthors });
 
   res.send({ savedMessages, authorsData });
 });
-
 app.post("/message", async (req, res) => {
   const newMessage = new Message(req.body);
   newMessage.save((err) => {
@@ -172,8 +175,8 @@ app.get("/users/:username", async (req, res) => {
   const allUsers = await User.find();
   const allUsersNumber = allUsers?.length ?? 0;
   const currentUserNumber = allUsers
-    ? allUsers.findIndex((user) => user.username === req.params.username) + 1
-    : 0;
+      ? allUsers.findIndex((user) => user.username === req.params.username) + 1
+      : 0;
   res.send({ allUsersNumber, currentUserNumber });
 });
 const __dirname = dirname(fileURLToPath(import.meta.url));
