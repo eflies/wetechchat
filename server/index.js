@@ -2,19 +2,19 @@ import express from "express";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
-import authRoutes from "./routes/auth.js";
 import httpMod from "http";
 import cors from "cors";
 import { Server } from "socket.io";
-import User from "./models/userModel.js";
 import * as dotenv from "dotenv";
-import SavedMessage from "./models/savedMessageModel.js";
-import Message from "./models/messageModel.js";
 import { config } from "platformsh-config";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import * as bcrypt from "bcrypt";
+import fs from "fs"
+import Message from "./models/messageModel.js";
 import Notes from "./models/notesModel.js";
+import SavedMessage from "./models/savedMessageModel.js";
+import User from "./models/userModel.js";
 
 dotenv.config();
 const pshConfig = config();
@@ -43,8 +43,6 @@ app.use(express.json());
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
-
-app.use("/api/auth", authRoutes);
 
 const MONGO_URI =
   MONGO_URL ?? pshConfig.formattedCredentials("database", "mongodb");
@@ -261,9 +259,11 @@ app.get("/notes/:username", async (req, res) => {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.static(join(__dirname, "../build")));
 
-app.get("/*", function (req, res) {
-  res.sendFile(join(__dirname, "../build", "index.html"));
-});
+if (fs.existsSync(join(__dirname, "../build"))) {
+  app.get("/*", function (req, res) {
+    res.sendFile(join(__dirname, "../build", "index.html"));
+  });
+}
 
 http.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);

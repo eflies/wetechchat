@@ -5,9 +5,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../App";
 
-const IMG_SRC =
-  "https://as2.ftcdn.net/v2/jpg/02/96/39/49/1000_F_296394926_47KWuovlxc7yzUqwqP0aNNXu8mC0BX76.jpg";
-
 const StyledCard = styled(Card)`
   width: 80%;
   margin: 60px auto;
@@ -15,8 +12,6 @@ const StyledCard = styled(Card)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  display: flex;
-  flex-direction: column;
   font-weight: 800;
   font-size: 20px;
   @media (max-width: 768px) {
@@ -77,7 +72,7 @@ const LandingPage = () => {
           <StyledDivLogedIn>
             There is already {allUsersNumber} users and you are the{" "}
             {currentUserNumber} one!
-            <StyledImg src={IMG_SRC} alt="yaay" />
+            <StyledImg src='/static/media/yay.jpeg' alt="yaay" />
             <SmallCard onClick={() => navigate("/chat")}>CHAT</SmallCard>
           </StyledDivLogedIn>
         ) : (

@@ -16,14 +16,20 @@ const StyledCard = styled(Card)`
   flex-direction: column;
   align-items: center;
   @media (max-width: 768px) {
-    margin:50px auto;
-    width:80%;
+    margin: 50px auto;
+    width: 80%;
   }
 `;
 const StyledTextField = styled(TextField)`
   margin: 5px auto !important;
   width: 100%;
 `;
+
+const StyledError = styled.div`
+  margin: 5px;
+  color: red;
+`;
+
 const LoginPage = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -38,10 +44,11 @@ const LoginPage = () => {
         username: login,
         password,
       });
-      result.data === "error" && setError(result.data);
       if (result.data === "success") {
         navigate("/");
         localStorage.setItem("username", login);
+      } else {
+        setError(result.data);
       }
     };
     sendData();
@@ -76,7 +83,7 @@ const LoginPage = () => {
       <Button variant="contained" type="submit" onClick={handleSubmit}>
         Login
       </Button>
-      {error && <div>{error}</div>}
+      {error && <StyledError>{error}</StyledError>}
     </StyledCard>
   );
 };

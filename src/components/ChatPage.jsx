@@ -4,6 +4,7 @@ import ChatBody from "./ChatBody";
 import NewMessage from "./NewMessage";
 import Card from "@mui/material/Card";
 import axios from "axios";
+import socketIO from "socket.io-client";
 import { BASE_URL } from "../App";
 
 const StyledCard = styled(Card)`
@@ -18,37 +19,37 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const ChatPage = ({ socket }) => {
+const ChatPage = () => {
+  const socket = socketIO.connect(BASE_URL);
   const [messages, setMessages] = useState([]);
   const [typingStatus, setTypingStatus] = useState("");
   const lastMessageRef = useRef(null);
 
   const fetchMessages = async () => {
-  
-    const result = await axios(`${BASE_URL}/messages`); 
-     setMessages(result?.data?.messages || []);
+    const result = await axios(`${BASE_URL}/messages`);
+    setMessages(result?.data?.messages || []);
   };
 
-  useEffect(() => { 
-    socket.on("messageResponse", (data) => { 
+  useEffect(() => {
+    socket.on("messageResponse", (data) => {
       return setMessages([...messages, data]);
     });
     //add msg to db
   }, [socket, messages]);
 
-  useEffect(() => { 
+  useEffect(() => {
     // 👇️ scroll to bottom every time messages change
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => { 
+  useEffect(() => {
     socket.on("typingResponse", (data) => setTypingStatus(data));
   }, [socket]);
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchMessages();
   }, []);
- 
+
   return (
     <StyledCard>
       <ChatBody

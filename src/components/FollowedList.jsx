@@ -60,9 +60,9 @@ const FollowedList = () => {
       </ButtonWrapper>
       <StyledParagraph>Saved messages</StyledParagraph>
 
-      {savedMessages.map((savedMessage) => (
+      {savedMessages?.length>0? savedMessages.map((savedMessage) => (
         <SavedMessage message={savedMessage} key={savedMessage._id} />
-      ))}
+      )): <>You have no saved messages</>}
     </StyledCard>
   );
 };

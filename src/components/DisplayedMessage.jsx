@@ -7,7 +7,7 @@ import { BASE_URL } from "../App";
 
 const MessageUserSender = styled.div`
   background-color: rgb(194, 243, 194);
-  max-width: 300px;
+  max-width: 250px;
   padding: 10px;
   border-radius: 10px;
   margin-left: auto;
@@ -22,18 +22,20 @@ const MessageRecipient = styled.div`
   padding: 10px;
   border-radius: 10px;
   font-size: 15px;
+  @media (max-width: 768px) {
+    width: 200px;
+  }
 `;
 const AuthorWrapper = styled.div`
   display: flex;
 `;
 const MessageWrapper = styled.div``;
 
-const DisplayedMessage = ({ message, socket }) => { 
+const DisplayedMessage = ({ message, socket }) => {
   const username = localStorage.getItem("username");
   const isUserSender = username === message.messageAuthor;
   const [isMessageSaved, setIsMessageSaved] = useState(false);
   const handleSaveMessage = (e) => {
-
     e.preventDefault();
 
     const sendData = async () => {

@@ -67,8 +67,8 @@ const SMLinks = styled.div`
 `;
 
 const SavedMessage = ({ message }) => {
-  const facebookUsername = message.author.facebook; 
-  const linkedInUsername=message.author.linkedin
+  const facebookUsername = message?.messageAuthor.facebook; 
+  const linkedInUsername=message?.messageAuthor.linkedin
   return (
     <SavedMessageWrapper>
       <AuthorWrapper>

@@ -20,16 +20,11 @@ const MessageContainer = styled.div`
   padding: 20px;
   overflow-y: scroll;
 `;
-const MessageStatus = styled.div`
-  position: fixed;
-  bottom: 50px;
-  font-size: 13px;
-  font-style: italic;
-`;
+
 const StyledParagraph = styled.p`
   font-size: 40px;
 `;
-const ChatBody = ({ messages, typingStatus, lastMessageRef, socket }) => {
+const ChatBody = ({ messages, lastMessageRef, socket }) => {
   return (
     <>
       <MainHeader>
@@ -41,13 +36,9 @@ const ChatBody = ({ messages, typingStatus, lastMessageRef, socket }) => {
           <DisplayedMessage
             message={message}
             socket={socket}
-            key={message.id}
+            key={message._id}
           />
         ))}
-
-        <MessageStatus>
-          <p>{typingStatus}</p>
-        </MessageStatus>
         <div ref={lastMessageRef} />
       </MessageContainer>
     </>
