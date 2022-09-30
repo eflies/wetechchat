@@ -13,7 +13,8 @@ import Message from "./models/messageModel.js";
 import { config } from "platformsh-config";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import * as bcrypt from "bcrypt"
+import * as bcrypt from "bcrypt";
+import Notes from "./models/notesModel.js";
 
 dotenv.config();
 const pshConfig = config();
@@ -46,18 +47,18 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 app.use("/api/auth", authRoutes);
 
 const MONGO_URI =
-    MONGO_URL ?? pshConfig.formattedCredentials("database", "mongodb");
+  MONGO_URL ?? pshConfig.formattedCredentials("database", "mongodb");
 mongoose
-    .connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log("DB Connetion Successfull");
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("DB Connetion Successfull");
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 
 const io = new Server(http, {
   cors: {
@@ -95,29 +96,35 @@ io.on("connection", (socket) => {
 
 app.post("/saveMessage", async (req, res) => {
   await db.collections.savedmessages.findOneAndUpdate(
-      {
-        saver: req.body.saver,
-      },
-      {
-        $push: {
-          messages: {
-            text: req.body.text,
-            messageAuthor: req.body.messageAuthor,
-          },
+    {
+      saver: req.body.saver,
+    },
+    {
+      $push: {
+        messages: {
+          text: req.body.text,
+          messageAuthor: req.body.messageAuthor,
         },
       },
-      { upsert: true }
+    },
+    { upsert: true }
   );
   res.send("success");
 });
 app.post("/register", async (req, res) => {
-  console.log({ req });
-  let payload = req.body
-  payload.password = await bcrypt.hash(payload.password, 10)
+  let payload = req.body;
+  payload.password = await bcrypt.hash(payload.password, 10);
 
+  const user = await db.collections.users.findOne({
+    username: req.body.username,
+  });
+  if (!!user) {
+    res.send("error");
+    return;
+  }
   const newUser = new User(payload);
+
   newUser.save((err) => {
-    console.log({ err });
     if (err) {
       res.send("error");
       return;
@@ -149,7 +156,7 @@ app.get("/savedMessages/:username", async (req, res) => {
     saver: req.params.username,
   });
   const msgAuthors = (savedMessages?.messages || []).map(
-      (savedMsg) => savedMsg.messageAuthor
+    (savedMsg) => savedMsg.messageAuthor
   );
   const authorsData = await User.find({ username: msgAuthors });
 
@@ -175,9 +182,81 @@ app.get("/users/:username", async (req, res) => {
   const allUsers = await User.find();
   const allUsersNumber = allUsers?.length ?? 0;
   const currentUserNumber = allUsers
-      ? allUsers.findIndex((user) => user.username === req.params.username) + 1
-      : 0;
+    ? allUsers.findIndex((user) => user.username === req.params.username) + 1
+    : 0;
   res.send({ allUsersNumber, currentUserNumber });
+});
+
+app.get("/user/:username", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    res.send({ user });
+  } catch (error) {
+    res.send("error");
+  }
+});
+
+app.post("/updateUser/:username", async (req, res) => {
+  try {
+    const user = await db.collections.users.findOne({
+      username: req.params.username,
+    });
+    const newPassword = (await bcrypt.compare(req.body.password, user.password))
+      ? user.password
+      : await bcrypt.hash(req.body.password, 10);
+    const updatedUser = await db.collections.users.updateOne(
+      { username: req.params.username },
+      {
+        $set: {
+          ...req.body,
+          password: newPassword,
+        },
+      }
+    );
+    console.log({ updatedUser });
+    res.send("success");
+  } catch (error) {
+    res.send("error");
+  }
+});
+
+app.post("/notes/:username", async (req, res) => {
+  const userNotes = await db.collections.notes.findOne({
+    username: req.params.username,
+  });
+  if (userNotes) {
+    await db.collections.notes.updateOne(
+      { username: req.params.username },
+      {
+        $set: {
+          ...req.body,
+          username: req.params.username,
+        },
+      }
+    );
+    res.send("success");
+  } else {
+    const newNotes = new Notes({ ...req.body, username: req.params.username });
+    newNotes.save((err) => {
+      if (err) {
+        res.send("error");
+        return;
+      } else {
+        res.send("success");
+      }
+    });
+  }
+});
+
+app.get("/notes/:username", async (req, res) => {
+  try {
+    const notes = await Notes.findOne({ username: req.params.username });
+
+    res.send({ notes });
+  } catch (error) {
+    res.send("error");
+  }
 });
 const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.static(join(__dirname, "../build")));
