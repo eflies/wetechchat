@@ -52,28 +52,11 @@ const DisplayedMessage = ({ message, socket }) => {
   };
   return (
     <div key={message.id}>
-      {isUserSender ? (
-        <>
-          <UserSenderName>{message.messageAuthor}</UserSenderName>
-          <MessageUserSender>
-            <p>{message.text}</p>
-          </MessageUserSender>
-        </>
-      ) : (
-        <MessageWrapper>
-          <AuthorWrapper>
-            <p>{message.messageAuthor}</p>
-            {isMessageSaved ? (
-              <BookmarkIcon onClick={handleSaveMessage} />
-            ) : (
-              <BookmarkBorderIcon onClick={handleSaveMessage} />
-            )}
-          </AuthorWrapper>
-          <MessageRecipient>
-            <p>{message.text}</p>
-          </MessageRecipient>
-        </MessageWrapper>
-      )}
+      {
+        /*
+          Your code should be here
+        */
+      }
     </div>
   );
 };

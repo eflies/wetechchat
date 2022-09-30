@@ -55,36 +55,13 @@ const LoginPage = () => {
   };
 
   return (
-    <StyledCard>
-      <Typography variant="h3" component="h3">
-        Login
-      </Typography>
-      <form>
-        <StyledTextField
-          id="outlined-basic"
-          label="Username"
-          key="username"
-          variant="outlined"
-          name="username"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-        />{" "}
-        <StyledTextField
-          id="outlined-basic"
-          label="Password"
-          key="password"
-          variant="outlined"
-          name="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </form>{" "}
-      <Button variant="contained" type="submit" onClick={handleSubmit}>
-        Login
-      </Button>
-      {error && <StyledError>{error}</StyledError>}
-    </StyledCard>
+      <StyledCard>
+        {
+          /*
+            Your code should be here
+          */
+        }
+      </StyledCard>
   );
 };
 export default LoginPage;

@@ -96,94 +96,13 @@ const ProfilePage = () => {
     updateUserData();
   };
   return (
-    <>
       <StyledCard>
-        <Typography variant="h3" component="h3">
-          {username}'s profile
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <StyledTextField
-            id="outlined-basic"
-            label="Password"
-            key="password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <StyledTextField
-            id="outlined-multiline-static"
-            label="Description"
-            multiline
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <RadioWrapper>
-            <FormControl>
-              <StyledRadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                name="radio-buttons-group"
-                onChange={(e) => setAnimal(e.target.value)}
-                value={animal}
-              >
-                <FormControlLabel value="dog" control={<Radio />} label="Dog" />
-                <FormControlLabel value="cat" control={<Radio />} label="Cat" />
-              </StyledRadioGroup>
-            </FormControl>
-          </RadioWrapper>
-          <RadioWrapper>
-            <FormControl>
-              <StyledRadioGroup
-                aria-labelledby="demo-radio-buttons-group-label"
-                name="radio-buttons-group"
-                onChange={(e) => setDrink(e.target.value)}
-                value={drink || "coffee"}
-              >
-                <FormControlLabel
-                  value="coffee"
-                  control={<Radio />}
-                  label="Coffee"
-                />
-                <FormControlLabel value="tea" control={<Radio />} label="Tea" />
-              </StyledRadioGroup>
-            </FormControl>
-          </RadioWrapper>
-          <RadioWrapper>
-            <FormControl>
-              <StyledRadioGroup
-                value={landscape || "mountain"}
-                aria-labelledby="demo-radio-buttons-group-label"
-                name="radio-buttons-group"
-                onChange={(e) => setLandscape(e.target.value)}
-              >
-                <FormControlLabel
-                  value="mountain"
-                  control={<Radio />}
-                  label="Mountain"
-                />
-                <FormControlLabel value="Sea" control={<Radio />} label="Sea" />
-              </StyledRadioGroup>
-            </FormControl>
-          </RadioWrapper>
-          <IconInput
-            socialMedia="linkedin"
-            label="LinkedIn"
-            value={linkedin}
-            onChange={(e) => setLinkedin(e.target.value)}
-          />
-          <IconInput
-            socialMedia="facebook"
-            label="Facebook"
-            value={facebook}
-            onChange={(e) => setFacebook(e.target.value)}
-          />
-        </form>
-        <Button variant="contained" type="submit" onClick={handleSubmit}>
-          Update
-        </Button>
+        {
+          /*
+            Your code should be here
+          */
+        }
       </StyledCard>
-    </>
   );
 };
 export default ProfilePage;
