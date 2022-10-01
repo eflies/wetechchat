@@ -118,9 +118,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/savedMessages/:username", async (req, res) => {
-  const savedMessages = await SavedMessage.findOne({
-    saver: req.params.username,
-  });
+  const savedMessages = await repo.findSavedMessagesByUser(req.params.username)
   const msgAuthors = (savedMessages?.messages || []).map(
       (savedMsg) => savedMsg.messageAuthor
   );
@@ -129,19 +127,17 @@ app.get("/savedMessages/:username", async (req, res) => {
   res.send({ savedMessages, authorsData });
 });
 app.post("/message", async (req, res) => {
-  const newMessage = new Message(req.body);
-  newMessage.save((err) => {
-    if (err) {
-      res.send("error");
-      return;
-    } else {
-      res.send("success");
-    }
-  });
+  try {
+    await repo.insertMessage(req.body);
+    res.send("success")
+  } catch (e) {
+    res.send("error")
+  }
 });
 
 app.get("/messages", async (req, res) => {
-  const messages = await Message.find();
+  const messages = await repo.getMessages();
+  console.log(messages)
   res.send({ messages });
 });
 app.get("/users/:username", async (req, res) => {

@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url'
 import {config} from "platformsh-config";
 import User from "./models/userModel.js";
 import Notes from "./models/notesModel.js";
+import SavedMessage from "./models/savedMessageModel.js";
+import Message from "./models/messageModel.js";
 
 class Repo {
     constructor() {
@@ -39,7 +41,7 @@ class Repo {
                 .then(() => {
                     this.db.data = this.db.data || {
                         users: {},
-                        messages: {},
+                        messages: [],
                         savedmessages: {},
                         notes: {}
                     }
@@ -85,7 +87,7 @@ class Repo {
         if (this.mode === 'REMOTE_DB') {
             const newUser = new User(payload);
             newUser.save((err) => {
-                if(err){
+                if (err) {
                     throw new Error(err)
                 }
             });
@@ -100,7 +102,7 @@ class Repo {
     async updateUser(username, newPassword, payload) {
         if (this.mode === 'REMOTE_DB') {
             return await this.db.collections.users.updateOne(
-                { username: username },
+                {username: username},
                 {
                     $set: {
                         ...payload,
@@ -130,23 +132,23 @@ class Repo {
                         },
                     },
                 },
-                { upsert: true }
+                {upsert: true}
             );
         }
 
         if (this.mode === 'LOCAL_DB') {
             if (!this.db.data.savedmessages.hasOwnProperty(payload.saver)) {
-                this.db.data.savedmessages[payload.saver] = []
+                this.db.data.savedmessages[payload.saver].messages = []
             }
-            this.db.data.savedmessages[payload.saver].push(payload)
+            this.db.data.savedmessages[payload.saver].messages.push(payload)
             await this.db.write()
         }
     }
 
-    async insertMessage(username, payload) {
+    async insertMessage(payload) {
         if (this.mode === 'REMOTE_DB') {
-            const newNotes = new Notes({ ...payload, username: username });
-            newNotes.save((err) => {
+            const newMessage = new Message(req.body);
+            newMessage.save((err) => {
                 if (err) {
                     throw new Error(err)
                 }
@@ -154,11 +156,18 @@ class Repo {
         }
 
         if (this.mode === 'LOCAL_DB') {
-            if (!this.db.data.notes.hasOwnProperty(payload.username)) {
-                this.db.data.notes[payload.username] = []
-            }
-            this.db.data.notes[payload.username].push(payload)
+            this.db.data.messages.push(payload)
             await this.db.write()
+        }
+    }
+
+    async getMessages() {
+        if (this.mode === 'REMOTE_DB') {
+            return await Message.find();
+        }
+
+        if (this.mode === 'LOCAL_DB') {
+            return this.db.data.messages
         }
     }
 }
