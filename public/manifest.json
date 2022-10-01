@@ -18,6 +18,14 @@
       "sizes": "512x512"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Public chat",
+      "short_name": "Chat",
+      "description": "Go to public chat",
+      "url": "/chat",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

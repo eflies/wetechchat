@@ -69,4 +69,22 @@ self.addEventListener('message', (event) => {
   }
 });
 
+self.addEventListener("install", event => {
+    event.waitUntil(
+        caches.open('pwa-1').then(cache => cache.addAll(['/static/media/pwa.jpeg', '/messages']))
+    );
+});
+
+self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+
+    if (url.origin == location.origin && url.pathname == '/messages') {
+        event.respondWith(caches.match('/messages'));
+    }
+
+    if (url.origin == location.origin && url.pathname == '/static/media/yay.jpeg') {
+        event.respondWith(caches.match('/static/media/pwa.jpeg'));
+    }
+});
+
 // Any other custom service worker logic can go here.
