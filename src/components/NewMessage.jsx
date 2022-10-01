@@ -60,11 +60,23 @@ const NewMessage = ({ socket }) => {
   };
   return (
     <ChatFooter>
-      {
-        /*
-          Your code should be here
-        */
-      }
+      <StyledForm onSubmit={handleSendMessage}>
+        <div>
+          <StyledParagraph>{messageAuthor}</StyledParagraph>
+          <PersonIcon sx={{ fontSize: 60 }} />
+        </div>
+        <StyledTextField
+          id="outlined-multiline-static"
+          multiline
+          rows={4}
+          placeholder="Write message"
+          onChange={(e) => setMessage(e.target.value)}
+          value={message}
+        />
+        <Button variant="contained" type="submit">
+          Send
+        </Button>
+      </StyledForm>
     </ChatFooter>
   );
 };

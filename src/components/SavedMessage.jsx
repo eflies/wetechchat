@@ -71,11 +71,33 @@ const SavedMessage = ({ message }) => {
   const linkedInUsername=message?.messageAuthor.linkedin
   return (
     <SavedMessageWrapper>
-      {
-        /*
-          Your code should be here
-        */
-      }
+      <AuthorWrapper>
+        Author: <StyledTypography>{message.messageAuthor}</StyledTypography>
+        Description:{" "}
+        <StyledTypography>{message.author.description}</StyledTypography>
+        <InfoWrapper>
+          <LocalCafeIcon />
+          <ToolTipText>{message.author.drink}</ToolTipText>
+        </InfoWrapper>
+        <InfoWrapper>
+          <PetsIcon />
+          <ToolTipText>{message.author.animal}</ToolTipText>
+        </InfoWrapper>
+        <InfoWrapper>
+          <LandscapeIcon />
+          <ToolTipText>{message.author.landscape}</ToolTipText>
+        </InfoWrapper>
+        <SMLinks>
+          <a href={`https://www.facebook.com/${facebookUsername}/`}>
+            <FacebookIcon />
+          </a>
+
+          <a href={`https://www.linkedin.com/in/${linkedInUsername}/`}>
+            <LinkedInIcon />
+          </a>
+        </SMLinks>
+      </AuthorWrapper>
+      <MessageWrapper>{message.text}</MessageWrapper>
     </SavedMessageWrapper>
   );
 };

@@ -60,11 +60,45 @@ const Notes = () => {
 
   return (
     <StyledCard>
-      {
-        /*
-          Your code should be here
-        */
-      }
+      <Typography variant="h3" component="h3">
+        Notes
+      </Typography>
+      <StyledDiv>
+        <StyledTextField
+          id="outlined-multiline-static"
+          multiline
+          label="Workshop 1"
+          fullWidth
+          rows={6}
+          value={firstWorkshopNotes}
+          onChange={(e) => setFirstWorkshopNotes(e.target.value)}
+        />
+      </StyledDiv>
+      <StyledDiv>
+        <StyledTextField
+          id="outlined-multiline-static"
+          multiline
+          label="Talent matching"
+          fullWidth
+          rows={6}
+          value={talentMatchingNotes}
+          onChange={(e) => setTalentMatchingNotes(e.target.value)}
+        />
+      </StyledDiv>
+      <StyledDiv>
+        <StyledTextField
+          id="outlined-multiline-static"
+          multiline
+          label="Workshop 2"
+          fullWidth
+          rows={6}
+          value={secondWorkshopNotes}
+          onChange={(e) => setSecondWorkshopNotes(e.target.value)}
+        />
+      </StyledDiv>
+      <Button variant="contained" type="submit" onClick={handleSubmit}>
+        Save
+      </Button>
     </StyledCard>
   );
 };

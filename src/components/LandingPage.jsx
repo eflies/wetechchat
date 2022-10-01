@@ -65,13 +65,26 @@ const LandingPage = () => {
   });
 
   return (
-      <StyledCard>
-        {
-          /*
-            Your code should be here
-          */
-        }
-      </StyledCard>
+    <StyledCard>
+      <>Welcome on our social app! Have fun while developing and using it</>
+      <StyledDivLogedOut>
+        {username ? (
+          <StyledDivLogedIn>
+            There is already {allUsersNumber} users and you are the{" "}
+            {currentUserNumber} one!
+            <StyledImg src='/static/media/yay.jpeg' alt="yaay" />
+            <SmallCard onClick={() => navigate("/chat")}>CHAT</SmallCard>
+          </StyledDivLogedIn>
+        ) : (
+          <>
+            <SmallCard onClick={() => navigate("/register")}>
+              REGISTER
+            </SmallCard>
+            <SmallCard onClick={() => navigate("/login")}>LOGIN</SmallCard>
+          </>
+        )}
+      </StyledDivLogedOut>
+    </StyledCard>
   );
 };
 export default LandingPage;
