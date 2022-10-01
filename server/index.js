@@ -15,10 +15,12 @@ import Message from "./models/messageModel.js";
 import Notes from "./models/notesModel.js";
 import SavedMessage from "./models/savedMessageModel.js";
 import User from "./models/userModel.js";
+import Repo from "./repo.js"
 
 dotenv.config();
 const pshConfig = config();
 
+const repo = new Repo()
 const { PORT = 4000, MONGO_URL } = process.env;
 const app = express();
 
@@ -43,20 +45,6 @@ app.use(express.json());
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
-
-const MONGO_URI =
-  MONGO_URL ?? pshConfig.formattedCredentials("database", "mongodb");
-mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("DB Connetion Successfull");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
 
 const io = new Server(http, {
   cors: {
@@ -93,52 +81,32 @@ io.on("connection", (socket) => {
 });
 
 app.post("/saveMessage", async (req, res) => {
-  await db.collections.savedmessages.findOneAndUpdate(
-    {
-      saver: req.body.saver,
-    },
-    {
-      $push: {
-        messages: {
-          text: req.body.text,
-          messageAuthor: req.body.messageAuthor,
-        },
-      },
-    },
-    { upsert: true }
-  );
+  await repo.insertSavedMessage(req.body)
   res.send("success");
 });
 app.post("/register", async (req, res) => {
   let payload = req.body;
   payload.password = await bcrypt.hash(payload.password, 10);
 
-  const user = await db.collections.users.findOne({
-    username: req.body.username,
-  });
+  const user = await repo.findUser(req.body.username);
   if (!!user) {
     res.send("error");
     return;
   }
-  const newUser = new User(payload);
 
-  newUser.save((err) => {
-    if (err) {
-      res.send("error");
-      return;
-    } else {
-      res.send("success");
-    }
-  });
+  try {
+    await repo.newUser(payload)
+    res.send('success')
+  } catch (err) {
+    res.send("error")
+  }
 });
 
 app.post("/login", async (req, res) => {
   if (!req.body.username || !req.body.password) {
     res.send("Fill in all imputs");
   }
-  const user = await db.collections.users.findOne({
-    username: req.body.username,
-  });
+  const user = await repo.findUser(req.body.username)
   if (!user) {
     return res.send("User doesn't exist");
   }
@@ -154,7 +122,7 @@ app.get("/savedMessages/:username", async (req, res) => {
     saver: req.params.username,
   });
   const msgAuthors = (savedMessages?.messages || []).map(
-    (savedMsg) => savedMsg.messageAuthor
+      (savedMsg) => savedMsg.messageAuthor
   );
   const authorsData = await User.find({ username: msgAuthors });
 
@@ -177,41 +145,29 @@ app.get("/messages", async (req, res) => {
   res.send({ messages });
 });
 app.get("/users/:username", async (req, res) => {
-  const allUsers = await User.find();
+  const allUsers = await repo.usersAll();
   const allUsersNumber = allUsers?.length ?? 0;
   const currentUserNumber = allUsers
-    ? allUsers.findIndex((user) => user.username === req.params.username) + 1
-    : 0;
+      ? allUsers.findIndex((user) => user.username === req.params.username) + 1
+      : 0;
   res.send({ allUsersNumber, currentUserNumber });
 });
 
 app.get("/user/:username", async (req, res) => {
   try {
-    const user = await User.findOne({ username: req.params.username });
-
-    res.send({ user });
-  } catch (error) {
+    res.send(await repo.findUser(req.params.username))
+  } catch(err) {
     res.send("error");
   }
 });
 
 app.post("/updateUser/:username", async (req, res) => {
   try {
-    const user = await db.collections.users.findOne({
-      username: req.params.username,
-    });
+    const user = await repo.findUser(req.params.username)
     const newPassword = (await bcrypt.compare(req.body.password, user.password))
-      ? user.password
-      : await bcrypt.hash(req.body.password, 10);
-    const updatedUser = await db.collections.users.updateOne(
-      { username: req.params.username },
-      {
-        $set: {
-          ...req.body,
-          password: newPassword,
-        },
-      }
-    );
+        ? user.password
+        : await bcrypt.hash(req.body.password, 10);
+    const updatedUser = await repo.updateUser(req.params.username, newPassword, req.body)
     console.log({ updatedUser });
     res.send("success");
   } catch (error) {
@@ -225,13 +181,13 @@ app.post("/notes/:username", async (req, res) => {
   });
   if (userNotes) {
     await db.collections.notes.updateOne(
-      { username: req.params.username },
-      {
-        $set: {
-          ...req.body,
-          username: req.params.username,
-        },
-      }
+        { username: req.params.username },
+        {
+          $set: {
+            ...req.body,
+            username: req.params.username,
+          },
+        }
     );
     res.send("success");
   } else {
@@ -257,9 +213,9 @@ app.get("/notes/:username", async (req, res) => {
   }
 });
 const __dirname = dirname(fileURLToPath(import.meta.url));
-app.use(express.static(join(__dirname, "../build")));
 
 if (fs.existsSync(join(__dirname, "../build"))) {
+  app.use(express.static(join(__dirname, "../build")));
   app.get("/*", function (req, res) {
     res.sendFile(join(__dirname, "../build", "index.html"));
   });
