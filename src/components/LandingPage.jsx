@@ -70,9 +70,7 @@ const LandingPage = () => {
       <StyledDivLogedOut>
         {username ? (
           <StyledDivLogedIn>
-            There is already {allUsersNumber} users and you are the{" "}
-            {currentUserNumber} one!
-            <StyledImg src='/static/media/yay.jpeg' alt="yaay" />
+            <StyledImg src="/static/media/yay.jpeg" alt="yaay" />
             <SmallCard onClick={() => navigate("/chat")}>CHAT</SmallCard>
           </StyledDivLogedIn>
         ) : (
