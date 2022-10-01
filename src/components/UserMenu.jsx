@@ -62,10 +62,10 @@ const UserMenu = ({ username, onLogoutClick }) => {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={onProfileClick}>Profile</MenuItem>
+        {/*<MenuItem onClick={onProfileClick}>Profile</MenuItem>*/}
         <MenuItem onClick={onChatClick}>Chat</MenuItem>
-        <MenuItem onClick={onSavedMessagesClick}>Saved messages</MenuItem>
-        <MenuItem onClick={onNotesClick}>Notes </MenuItem>
+        {/*<MenuItem onClick={onSavedMessagesClick}>Saved messages</MenuItem>*/}
+        {/*<MenuItem onClick={onNotesClick}>Notes </MenuItem>*/}
         <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
       </Menu>
     </div>
