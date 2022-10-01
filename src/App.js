@@ -23,10 +23,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/login" element={<LoginPage setUser={setUser} />} />{" "}
-        <Route path="/userProfile" element={<ProfilePage />} />
-        <Route path="/notes" element={<Notes />} />
+        {/*<Route path="/userProfile" element={<ProfilePage />} />*/}
+        {/*<Route path="/notes" element={<Notes />} />*/}
         <Route path="/chat" element={<ChatPage />} />
-        <Route path="followed" element={<FollowedList />} />
+        {/*<Route path="followed" element={<FollowedList />} />*/}
       </Routes>
     </Router>
   );
